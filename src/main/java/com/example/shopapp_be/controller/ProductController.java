@@ -52,8 +52,12 @@ public class ProductController {
                         .toList();
                 return ResponseEntity.badRequest().body(errors);
             }
-            MultipartFile file = productDTO.getFiles();
-
+            List<MultipartFile> files = productDTO.getFiles();
+            files = files == null ? new ArrayList<>() : files;
+            for (MultipartFile file : files) {
+                if (file.getSize() == 0) {
+                    continue;
+                }
                     if (file.getSize() > 10 * 1024 * 1024) {
                         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                                 .body("File size too large!, max size is 10MB");
@@ -64,6 +68,7 @@ public class ProductController {
                                 .body("Unsupported media type, only accept image");
                     }
                     String fileName = storeFile(file);
+            }
             return ResponseEntity.ok("Product added successfully");
         } catch (Exception e) {
             e.printStackTrace();
